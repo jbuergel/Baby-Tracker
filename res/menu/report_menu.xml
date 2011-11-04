@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_about"
+          android:icon="@android:drawable/ic_menu_info_details"
+          android:title="@string/menu_about" />
+    <item android:id="@+id/menu_help"
+          android:icon="@android:drawable/ic_menu_help"
+          android:title="@string/menu_help" />
+    <item android:id="@+id/menu_remove_last"
+          android:icon="@android:drawable/ic_menu_edit"
+          android:title="@string/menu_remove_last" />
+    <item android:id="@+id/menu_clear_data"
+          android:icon="@android:drawable/ic_menu_close_clear_cancel"
+          android:title="@string/menu_clear_data" />
+    <item android:id="@+id/menu_more"
+          android:icon="@android:drawable/ic_menu_more"
+          android:title="@string/menu_more" />
+</menu>

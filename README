@@ -1,0 +1,3 @@
+This repo contains the source code to the Android application Baby Tracker (https://market.android.com/details?id=com.houseofslack.babytracker).  It is a simple widget for tracking information about up to two babies in the easiest fashion I could think of.
+
+It's a useful reference for creating app widgets, it interacts with a data provider and demonstrated a fairly simple Service, making it a decent demonstration of several interesting parts of Android.  It's licensed under the Apache license.

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.houseofslack.babytracker"
+      android:versionCode="7"
+      android:versionName="1.5">
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar" android:debuggable="false">
+        <activity android:name=".SettingsActivity"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".reporting.TabMain"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.FeedingReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.BMDiaperReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.WetDiaperReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.SleepReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.CryingReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <activity android:name=".reporting.CustomReport"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        <receiver android:name=".BabyTrackerAppWidgetNormal" android:label="@string/baby_tracker_widget_label">
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/baby_tracker" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".BabyTrackerAppWidgetCrying" android:label="@string/baby_tracker_widget_label_crying">
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/baby_tracker_crying" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".UpdateService">
+            <intent-filter>
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_FEEDING" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_FEEDING" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_WET_DIAPER" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_WET_DIAPER" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_BM_DIAPER" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_BM_DIAPER" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_SLEEP" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_SLEEP" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_CRYING" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_CRYING" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_CUSTOM" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_RIGHT_CUSTOM" />
+            </intent-filter>
+        </service>
+        <provider android:name="com.houseofslack.babytracker.DataProvider" android:authorities="com.houseofslack.babytracker.DataProvider" />
+    </application>
+
+<uses-sdk android:minSdkVersion="7"></uses-sdk>
+</manifest> 
