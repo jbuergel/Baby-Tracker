@@ -65,6 +65,10 @@
     <string name="custom_name_category_title">Custom Category</string>
     <string name="custom_name_summary">Set a name for the custom category.</string>
     <string name="custom_name_title">Custom Category Name</string>
+    <string name="twenty_four_hour_category_title">Time Format</string>
+    <string name="twenty_four_hour_summary">Use 24 hour times?</string>
+    <string name="twenty_four_hour_title">24 Hour Time</string>
+    <string name="twenty_four_hour_key">24_hour_time</string>
     <string name="default_custom_name">Custom</string>
     <string name="custom_name_key">custom_key</string>
     <string name="toast_shown">toast_shown</string>

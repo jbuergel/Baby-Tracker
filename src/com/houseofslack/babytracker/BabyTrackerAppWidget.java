@@ -145,7 +145,12 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
             StringBuffer sb = new StringBuffer(context.getResources().getString(headerStringId));
             Time time = new Time();
             time.set(longTime);
-            sb.append(time.format("%R"));
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.twenty_four_hour_key), true)) {
+                sb.append(time.format("%R"));
+            } else {
+                sb.append(time.format("%I:%M %p"));
+            }
+
             views.setTextViewText(areaId, sb.toString());
         }
     }
@@ -185,15 +190,20 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         {
             Time time = new Time();
             time.set(startTime);
+            String timeFormat = "%R";
+            if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.twenty_four_hour_key), true)) {
+                timeFormat = "%I:%M %p";
+            }
+            
             if (null != customString) 
             {
                 // upper-case the first character
                 String upperCustomString = customString.substring(0, 1).toUpperCase() + customString.substring(1);
-                views.setTextViewText(areaId, context.getResources().getString(goingId, upperCustomString, time.format("%R")));
+                views.setTextViewText(areaId, context.getResources().getString(goingId, upperCustomString, time.format(timeFormat)));
             }
             else
             {
-                views.setTextViewText(areaId, context.getResources().getString(goingId, time.format("%R")));
+                views.setTextViewText(areaId, context.getResources().getString(goingId, time.format(timeFormat)));
             }
         }
         else 

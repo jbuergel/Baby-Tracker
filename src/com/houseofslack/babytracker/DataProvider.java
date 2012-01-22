@@ -92,11 +92,15 @@ public class DataProvider extends ContentProvider {
         
         public Event(Context context, int babyIndex, long date, EventType type)
         {
+            String timeFormat = "%R";
+            if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.twenty_four_hour_key), true)) {
+                timeFormat = "%I:%M %p";
+            }
             this.dateMillis = date;
             this.babyIndex = babyIndex;
             Time time = new Time();
             time.set(date);
-            dateString = time.format("%R on %D");
+            dateString = time.format(timeFormat + " on %D");
             if (0 == babyIndex)
             {
                 babyName = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.baby_name_key_1), "Baby");
