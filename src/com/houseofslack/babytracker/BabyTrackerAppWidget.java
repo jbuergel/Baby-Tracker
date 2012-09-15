@@ -123,6 +123,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
     public abstract int getBothConfiguredId();
     public abstract int getOneConfiguredId();
     public abstract boolean hasCrying();
+    public abstract boolean hasExtras();
     
     public static void updateWidget(Context context)
     {
@@ -226,32 +227,38 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         views.setTextViewText(ids.get(NAME_KEY), name);
         
         // update the displays for items
-        updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), R.string.last_feeding_header, R.string.unconfigured_feeding);
         updateArea(context, views, ids.get(WET_DIAPER_KEY), keys.get(WET_DIAPER_KEY), R.string.last_wet_diaper_header, R.string.unconfigured_wet_diaper);
         updateArea(context, views, ids.get(BM_DIAPER_KEY), keys.get(BM_DIAPER_KEY), R.string.last_bm_diaper_header, R.string.unconfigured_bm_diaper);
-        updateDurationEvent(context, views, ids.get(SLEEP_KEY), keys.get(SLEEP_START_KEY), keys.get(SLEEP_END_KEY), R.string.no_sleep, R.string.sleep_going, R.string.sleep_ended, 0);
+        if (hasExtras())
+        {
+            updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), R.string.last_feeding_header, R.string.unconfigured_feeding);
+            updateDurationEvent(context, views, ids.get(SLEEP_KEY), keys.get(SLEEP_START_KEY), keys.get(SLEEP_END_KEY), R.string.no_sleep, R.string.sleep_going, R.string.sleep_ended, 0);
+            updateDurationEvent(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_START_KEY), keys.get(CUSTOM_END_KEY), R.string.no_custom, R.string.custom_going, R.string.custom_ended, R.string.custom_name_key);
+        }
         if (hasCrying()) 
         {
             updateDurationEvent(context, views, ids.get(CRYING_KEY), keys.get(CRYING_START_KEY), keys.get(CRYING_END_KEY), R.string.no_crying, R.string.crying_going, R.string.crying_ended, 0);
         }
-        updateDurationEvent(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_START_KEY), keys.get(CUSTOM_END_KEY), R.string.no_custom, R.string.custom_going, R.string.custom_ended, R.string.custom_name_key);
         
-        // set pending intents for both of our areas - the feeding time and the diaper time
-        views.setOnClickPendingIntent(ids.get(FEEDING_KEY), PendingIntent.getService(context, 0,
-                new Intent(intents.get(FEEDING_KEY)), 0));
+        // set pending intents for our areas
         views.setOnClickPendingIntent(ids.get(WET_DIAPER_KEY), PendingIntent.getService(context, 0,
                 new Intent(intents.get(WET_DIAPER_KEY)), 0));
         views.setOnClickPendingIntent(ids.get(BM_DIAPER_KEY), PendingIntent.getService(context, 0,
                 new Intent(intents.get(BM_DIAPER_KEY)), 0));
-        views.setOnClickPendingIntent(ids.get(SLEEP_KEY), PendingIntent.getService(context, 0,
-                new Intent(intents.get(SLEEP_KEY)), 0));
+        if (hasExtras())
+        {
+            views.setOnClickPendingIntent(ids.get(FEEDING_KEY), PendingIntent.getService(context, 0,
+                    new Intent(intents.get(FEEDING_KEY)), 0));
+            views.setOnClickPendingIntent(ids.get(SLEEP_KEY), PendingIntent.getService(context, 0,
+                    new Intent(intents.get(SLEEP_KEY)), 0));
+            views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,
+                    new Intent(intents.get(CUSTOM_KEY)), 0));
+        }
         if (hasCrying()) 
         {
             views.setOnClickPendingIntent(ids.get(CRYING_KEY), PendingIntent.getService(context, 0,
                     new Intent(intents.get(CRYING_KEY)), 0));
         }
-        views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,
-                new Intent(intents.get(CUSTOM_KEY)), 0));
     }
     
     @Override

@@ -10,6 +10,7 @@
     <string name="widget_title">Baby Tracker</string>
     <string name="baby_tracker_widget_label">Baby Tracker</string>
     <string name="baby_tracker_widget_label_crying">Baby Tracker (with crying)</string>
+    <string name="baby_tracker_widget_label_diaper_only">Baby Tracker (diaper only)</string>
     <string name="reset_button_caption">Reset Tracking Data</string>
     <string name="report_button_caption">Get Detailed Reports</string>
     <string name="baby_name_category_title">Baby Information</string>

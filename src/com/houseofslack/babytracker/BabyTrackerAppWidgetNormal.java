@@ -18,18 +18,27 @@ package com.houseofslack.babytracker;
 
 public class BabyTrackerAppWidgetNormal extends BabyTrackerAppWidget
 {
+	@Override
     public int getBothConfiguredId()
     {
         return R.layout.both_configured;
     }
     
+	@Override
     public int getOneConfiguredId()
     {
         return R.layout.one_configured;
     }
     
+	@Override
     public boolean hasCrying()
     {
         return false;
+    }
+    
+	@Override
+    public boolean hasExtras()
+    {
+        return true;
     }
 }

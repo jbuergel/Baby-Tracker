@@ -16,29 +16,30 @@ limitations under the License.
 
 package com.houseofslack.babytracker;
 
-public class BabyTrackerAppWidgetCrying extends BabyTrackerAppWidget
+public class BabyTrackerAppWidgetDiaperOnly extends BabyTrackerAppWidget
 {
 	@Override
     public int getBothConfiguredId()
     {
-        return R.layout.both_configured_crying;
+        return R.layout.both_configured_diaper_only;
     }
     
 	@Override
     public int getOneConfiguredId()
     {
-        return R.layout.one_configured_crying;
+        return R.layout.one_configured_diaper_only;
     }
     
 	@Override
     public boolean hasCrying()
     {
-        return true;
+        return false;
     }
     
 	@Override
     public boolean hasExtras()
     {
-        return true;
+        return false;
     }
+
 }

@@ -56,6 +56,14 @@
                 <action android:name="com.houseofslack.babytracker.UPDATE_WIDGET" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".BabyTrackerAppWidgetDiaperOnly" android:label="@string/baby_tracker_widget_label_diaper_only">
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/baby_tracker_diaper_only" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.houseofslack.babytracker.UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
         <service android:name=".UpdateService">
             <intent-filter>
                 <action android:name="com.houseofslack.babytracker.UPDATE_LEFT_FEEDING" />
