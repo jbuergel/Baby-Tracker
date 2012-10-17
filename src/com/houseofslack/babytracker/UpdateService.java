@@ -17,6 +17,7 @@ limitations under the License.
 package com.houseofslack.babytracker;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -63,6 +64,12 @@ public class UpdateService extends IntentService
     public static final String LEFT_CUSTOM_END = "left_custom_end";
     public static final String RIGHT_CUSTOM_START = "right_custom_start";
     public static final String RIGHT_CUSTOM_END = "right_custom_end";
+    public static final String LEFT_FEEDING_AMOUNT = "left_feeding_amount";
+    public static final String PREVIOUS_LEFT_FEEDING_AMOUNT = "previous_left_feeding_amount";
+    public static final String RIGHT_FEEDING_AMOUNT = "right_feeding_amount";
+    public static final String PREVIOUS_RIGHT_FEEDING_AMOUNT = "previous_right_feeding_amount";
+    
+    public static final String EXTRA_FEEDING_AMOUNT_VALUE = "extra_feeding_amount_value";
     
     private static final long ROLLBACK_INTERVAL = 1000 * 30;
     
@@ -73,7 +80,7 @@ public class UpdateService extends IntentService
         super(SERVICE_NAME);
     }
     
-    private boolean checkForRollback(long currentTime, long previousTime, Time now)
+    private static boolean checkForRollback(long currentTime, long previousTime, Time now)
     {
         if (((now.toMillis(false) - currentTime) < ROLLBACK_INTERVAL) && (0 != previousTime))
         {
@@ -85,10 +92,50 @@ public class UpdateService extends IntentService
         }
     }
     
-    private void updateTime(DataProvider.EventType type, SharedPreferences prefs, SharedPreferences.Editor edit, Time now, String currentTimeKey, String previousTimeKey, int babyNumber)
+    private float getFloatFromPrefs(SharedPreferences prefs, String key) {
+        float value = 0.0f;
+        if (null != key) 
+        {
+            try 
+            {
+            	value = prefs.getFloat(key, 0.0f);
+            }
+            catch (Exception ex)
+            {
+            	// we don't care here
+            }
+        }
+        return value;
+    }
+    
+    public static boolean isFeedingRollback(Context context, String intent, Time now) 
+    {
+    	String currentTimeKey = null;
+    	String previousTimeKey = null;
+    	
+        if (UPDATE_LEFT_FEEDING.equals(intent))
+        {
+        	currentTimeKey = LEFT_FEEDING_TIME;
+        	previousTimeKey = PREVIOUS_LEFT_FEEDING_TIME;
+        }
+        else if (UPDATE_RIGHT_FEEDING.equals(intent))
+        {
+        	currentTimeKey = RIGHT_FEEDING_TIME;
+        	previousTimeKey = PREVIOUS_RIGHT_FEEDING_TIME;
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        long currentTime = prefs.getLong(currentTimeKey, 0);
+        long previousTime = prefs.getLong(previousTimeKey, 0);
+        return checkForRollback(currentTime, previousTime, now);
+    }
+    
+    private void updateTime(DataProvider.EventType type, SharedPreferences prefs, SharedPreferences.Editor edit, Time now, String currentTimeKey, 
+    		String previousTimeKey, String currentQuantityKey, String previousQuantityKey, int babyNumber, float newQuantity)
     {
         long currentTime = prefs.getLong(currentTimeKey, 0);
         long previousTime = prefs.getLong(previousTimeKey, 0);
+        float currentQuantity = getFloatFromPrefs(prefs, currentQuantityKey);
+        float previousQuantity = getFloatFromPrefs(prefs, previousQuantityKey);
         
         // check if this is a rollback
         if (checkForRollback(currentTime, previousTime, now))
@@ -97,13 +144,17 @@ public class UpdateService extends IntentService
             DataProvider.deleteEvent(getContentResolver(), type, currentTime, babyNumber);
             edit.putLong(currentTimeKey, previousTime);
             edit.putLong(previousTimeKey, 0);
+            edit.putFloat(currentQuantityKey, previousQuantity);
+            edit.putFloat(previousQuantityKey, 0.0f);
         }
         else
         {
             // add a time entry
-            DataProvider.putEvent(getContentResolver(), type, now.toMillis(false), babyNumber);
+            DataProvider.putEvent(getContentResolver(), type, now.toMillis(false), babyNumber, newQuantity);
             edit.putLong(currentTimeKey, now.toMillis(false));
             edit.putLong(previousTimeKey, currentTime);
+            edit.putFloat(currentQuantityKey, newQuantity);
+            edit.putFloat(previousQuantityKey, currentQuantity);
         }
     }
     
@@ -132,8 +183,8 @@ public class UpdateService extends IntentService
             // update the end time
             edit.putLong(endTimeKey, now.toMillis(false));
             // add two time entries, for the start and end of the nap
-            DataProvider.putEvent(getContentResolver(), eventType, startTime, babyNumber);
-            DataProvider.putEvent(getContentResolver(), eventType, now.toMillis(false), babyNumber);
+            DataProvider.putEvent(getContentResolver(), eventType, startTime, babyNumber, 0.0f);
+            DataProvider.putEvent(getContentResolver(), eventType, now.toMillis(false), babyNumber, 0.0f);
         }
         else
         {
@@ -156,31 +207,32 @@ public class UpdateService extends IntentService
         boolean baby0Enabled = prefs.getBoolean(getString(R.string.enable_baby_key_1), false);
         int left = baby0Enabled ? 0 : 1;
         int right = 1;
+        float quantity = intent.getFloatExtra(EXTRA_FEEDING_AMOUNT_VALUE, 0.0f);
         
         // see what the intent we're handling is
         if (UPDATE_LEFT_FEEDING.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.FEEDING, prefs, edit, now, LEFT_FEEDING_TIME, PREVIOUS_LEFT_FEEDING_TIME, left);
+            updateTime(DataProvider.EventType.FEEDING, prefs, edit, now, LEFT_FEEDING_TIME, PREVIOUS_LEFT_FEEDING_TIME, LEFT_FEEDING_AMOUNT, PREVIOUS_LEFT_FEEDING_AMOUNT, left, quantity);
         }
         else if (UPDATE_RIGHT_FEEDING.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.FEEDING, prefs, edit, now, RIGHT_FEEDING_TIME, PREVIOUS_RIGHT_FEEDING_TIME, right);
+            updateTime(DataProvider.EventType.FEEDING, prefs, edit, now, RIGHT_FEEDING_TIME, PREVIOUS_RIGHT_FEEDING_TIME, RIGHT_FEEDING_AMOUNT, PREVIOUS_RIGHT_FEEDING_AMOUNT, right, quantity);
         }
         else if (UPDATE_LEFT_WET_DIAPER.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.WET_DIAPER, prefs, edit, now, LEFT_WET_DIAPER_TIME, PREVIOUS_LEFT_WET_DIAPER_TIME, left);
+            updateTime(DataProvider.EventType.WET_DIAPER, prefs, edit, now, LEFT_WET_DIAPER_TIME, PREVIOUS_LEFT_WET_DIAPER_TIME, null, null, left, 0.0f);
         }
         else if (UPDATE_RIGHT_WET_DIAPER.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.WET_DIAPER, prefs, edit, now, RIGHT_WET_DIAPER_TIME, PREVIOUS_RIGHT_WET_DIAPER_TIME, right);
+            updateTime(DataProvider.EventType.WET_DIAPER, prefs, edit, now, RIGHT_WET_DIAPER_TIME, PREVIOUS_RIGHT_WET_DIAPER_TIME, null, null, right, 0.0f);
         }
         else if (UPDATE_LEFT_BM_DIAPER.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.BM_DIAPER, prefs, edit, now, LEFT_BM_DIAPER_TIME, PREVIOUS_LEFT_BM_DIAPER_TIME, left);
+            updateTime(DataProvider.EventType.BM_DIAPER, prefs, edit, now, LEFT_BM_DIAPER_TIME, PREVIOUS_LEFT_BM_DIAPER_TIME, null, null, left, 0.0f);
         }
         else if (UPDATE_RIGHT_BM_DIAPER.equals(intent.getAction()))
         {
-            updateTime(DataProvider.EventType.BM_DIAPER, prefs, edit, now, RIGHT_BM_DIAPER_TIME, PREVIOUS_RIGHT_BM_DIAPER_TIME, right);
+            updateTime(DataProvider.EventType.BM_DIAPER, prefs, edit, now, RIGHT_BM_DIAPER_TIME, PREVIOUS_RIGHT_BM_DIAPER_TIME, null, null, right, 0.0f);
         }
         else if (UPDATE_LEFT_SLEEP.equals(intent.getAction()))
         {

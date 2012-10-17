@@ -57,6 +57,8 @@ public class DataProvider extends ContentProvider {
         public static final String TIME = "time";
         
         public static final String BABY = "baby";
+        
+        public static final String QUANTITY = "quantity";
     }
     
     public enum EventType
@@ -89,8 +91,9 @@ public class DataProvider extends ContentProvider {
         private EventType type;
         private long dateMillis;
         private int babyIndex;
+        private float quantity;
         
-        public Event(Context context, int babyIndex, long date, EventType type)
+        public Event(Context context, int babyIndex, long date, EventType type, float quantity)
         {
             String timeFormat = "%R";
             if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.twenty_four_hour_key), true)) {
@@ -110,6 +113,7 @@ public class DataProvider extends ContentProvider {
                 babyName = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.baby_name_key_2), "Baby");
             }
             this.type = type;
+            this.quantity = quantity;
         }
         
         public int getBabyIndex()
@@ -136,15 +140,20 @@ public class DataProvider extends ContentProvider {
         {
             return type;
         }
+        
+        public float getQuantity()
+        {
+        	return quantity;
+        }
     }
     
-    private static final String[] standardProjection = new String[] {Events._ID, Events.TYPE, Events.TIME, Events.BABY};
+    private static final String[] standardProjection = new String[] {Events._ID, Events.TYPE, Events.TIME, Events.BABY, Events.QUANTITY};
     
     private static final String TAG = "DataProvider";
 
     private static final String DATABASE_NAME = "events.db";
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String EVENTS_TABLE_NAME = "events";
 
@@ -169,16 +178,24 @@ public class DataProvider extends ContentProvider {
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," 
                     + Events.TYPE + " INTEGER,"
                     + Events.TIME + " INTEGER,"
-                    + Events.BABY + " INTEGER"
+                    + Events.BABY + " INTEGER,"
+                    + Events.QUANTITY + " REAL"
                     + ");");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
-                    + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE_NAME);
-            onCreate(db);
+        	// bring a version 1 database up to snuff by adding the quantity column
+        	if (1 == oldVersion) {
+                Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
+                        + " by adding column QUANTITY");
+        		db.execSQL("ALTER TABLE " + EVENTS_TABLE_NAME + " ADD COLUMN " + Events.QUANTITY + " REAL DEFAULT 0.0;");
+        	} else {
+                Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
+                        + ", which will destroy all old data");
+                db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE_NAME);
+                onCreate(db);
+        	}
         }
     }
 
@@ -310,14 +327,16 @@ public class DataProvider extends ContentProvider {
         eventsProjectionMap.put(Events.TYPE, Events.TYPE);
         eventsProjectionMap.put(Events.TIME, Events.TIME);
         eventsProjectionMap.put(Events.BABY, Events.BABY);
+        eventsProjectionMap.put(Events.QUANTITY, Events.QUANTITY);
     }
     
-    public static void putEvent(ContentResolver cr, EventType type, long time, int baby)
+    public static void putEvent(ContentResolver cr, EventType type, long time, int baby, float quantity)
     {
         ContentValues values = new ContentValues();
         values.put(Events.TYPE, type.ordinal());
         values.put(Events.TIME, time);
         values.put(Events.BABY, baby);
+        values.put(Events.QUANTITY, quantity);
         cr.insert(CONTENT_URI, values);
     }
     
@@ -326,7 +345,16 @@ public class DataProvider extends ContentProvider {
         long time = cursor.getLong(cursor.getColumnIndex(Events.TIME));
         int baby = cursor.getInt(cursor.getColumnIndex(Events.BABY));
         EventType type = valueOf(cursor.getInt(cursor.getColumnIndex(Events.TYPE)));
-        return new Event(context, baby, time, type);
+        float quantity = 0.0f;
+        try 
+        {
+	        quantity = cursor.getFloat(cursor.getColumnIndex(Events.QUANTITY));
+        } 
+        catch (Exception ex) 
+        {
+        	// nothing to do, just leave it as a 0
+        }
+        return new Event(context, baby, time, type, quantity);
     }
     
     public static void deleteEvent(ContentResolver cr, EventType type, long time, int baby)

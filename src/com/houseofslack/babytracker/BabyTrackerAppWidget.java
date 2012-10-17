@@ -16,6 +16,7 @@ limitations under the License.
 
 package com.houseofslack.babytracker;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import android.app.PendingIntent;
@@ -54,6 +55,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
     private static final String CUSTOM_KEY = "custom";
     private static final String CUSTOM_START_KEY = "custom_start";
     private static final String CUSTOM_END_KEY = "custom_end";
+    private static final String FEEDING_AMOUNT_KEY = "feedingAmount";
 
     static
     {
@@ -80,6 +82,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         LEFT_KEYS.put(CRYING_END_KEY, UpdateService.LEFT_CRYING_END);
         LEFT_KEYS.put(CUSTOM_START_KEY, UpdateService.LEFT_CUSTOM_START);
         LEFT_KEYS.put(CUSTOM_END_KEY, UpdateService.LEFT_CUSTOM_END);
+        LEFT_KEYS.put(FEEDING_AMOUNT_KEY, UpdateService.LEFT_FEEDING_AMOUNT);
         RIGHT_KEYS.put(FEEDING_KEY, UpdateService.RIGHT_FEEDING_TIME);
         RIGHT_KEYS.put(WET_DIAPER_KEY, UpdateService.RIGHT_WET_DIAPER_TIME);
         RIGHT_KEYS.put(BM_DIAPER_KEY, UpdateService.RIGHT_BM_DIAPER_TIME);
@@ -89,6 +92,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         RIGHT_KEYS.put(CRYING_END_KEY, UpdateService.RIGHT_CRYING_END);
         RIGHT_KEYS.put(CUSTOM_START_KEY, UpdateService.RIGHT_CUSTOM_START);
         RIGHT_KEYS.put(CUSTOM_END_KEY, UpdateService.RIGHT_CUSTOM_END);
+        RIGHT_KEYS.put(FEEDING_AMOUNT_KEY, UpdateService.RIGHT_FEEDING_AMOUNT);
         LEFT_INTENTS.put(FEEDING_KEY, UpdateService.UPDATE_LEFT_FEEDING);
         LEFT_INTENTS.put(WET_DIAPER_KEY, UpdateService.UPDATE_LEFT_WET_DIAPER);
         LEFT_INTENTS.put(BM_DIAPER_KEY, UpdateService.UPDATE_LEFT_BM_DIAPER);
@@ -133,7 +137,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         context.sendBroadcast(updateIntent);
     }
     
-    private void updateArea(Context context, RemoteViews views, int areaId, String key, int headerStringId, int unconfiguredHelpStringId)
+    private void updateArea(Context context, RemoteViews views, int areaId, String key, int headerStringId, int unconfiguredHelpStringId, boolean showAmount, String amountKey)
     {
         // get the time
         long longTime = PreferenceManager.getDefaultSharedPreferences(context).getLong(key, 0);
@@ -150,6 +154,12 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
                 sb.append(time.format("%R"));
             } else {
                 sb.append(time.format("%I:%M %p"));
+            }
+            
+            if (showAmount) {
+                float amount = PreferenceManager.getDefaultSharedPreferences(context).getFloat(amountKey, 0);
+                sb.append(" ");
+            	sb.append(context.getString(R.string.display_amount, new DecimalFormat("#.##").format(amount)));
             }
 
             views.setTextViewText(areaId, sb.toString());
@@ -226,12 +236,14 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         String name = PreferenceManager.getDefaultSharedPreferences(context).getString(nameKey, "");
         views.setTextViewText(ids.get(NAME_KEY), name);
         
+        boolean useFeedingAmounts = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.enter_feeding_quantities_key), false);
+        
         // update the displays for items
-        updateArea(context, views, ids.get(WET_DIAPER_KEY), keys.get(WET_DIAPER_KEY), R.string.last_wet_diaper_header, R.string.unconfigured_wet_diaper);
-        updateArea(context, views, ids.get(BM_DIAPER_KEY), keys.get(BM_DIAPER_KEY), R.string.last_bm_diaper_header, R.string.unconfigured_bm_diaper);
+        updateArea(context, views, ids.get(WET_DIAPER_KEY), keys.get(WET_DIAPER_KEY), R.string.last_wet_diaper_header, R.string.unconfigured_wet_diaper, false, null);
+        updateArea(context, views, ids.get(BM_DIAPER_KEY), keys.get(BM_DIAPER_KEY), R.string.last_bm_diaper_header, R.string.unconfigured_bm_diaper, false, null);
         if (hasExtras())
         {
-            updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), R.string.last_feeding_header, R.string.unconfigured_feeding);
+            updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), R.string.last_feeding_header, R.string.unconfigured_feeding, useFeedingAmounts, keys.get(FEEDING_AMOUNT_KEY));
             updateDurationEvent(context, views, ids.get(SLEEP_KEY), keys.get(SLEEP_START_KEY), keys.get(SLEEP_END_KEY), R.string.no_sleep, R.string.sleep_going, R.string.sleep_ended, 0);
             updateDurationEvent(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_START_KEY), keys.get(CUSTOM_END_KEY), R.string.no_custom, R.string.custom_going, R.string.custom_ended, R.string.custom_name_key);
         }
@@ -247,8 +259,18 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
                 new Intent(intents.get(BM_DIAPER_KEY)), 0));
         if (hasExtras())
         {
-            views.setOnClickPendingIntent(ids.get(FEEDING_KEY), PendingIntent.getService(context, 0,
-                    new Intent(intents.get(FEEDING_KEY)), 0));
+        	if (useFeedingAmounts)
+        	{
+        		Intent intent = new Intent(context, EnterQuantity.class);
+        		intent.putExtra(EnterQuantity.EXTRA_SERVICE_INTENT, intents.get(FEEDING_KEY));
+        		// note that we have to make these intents look different, since it doesn't distinguish based on extras
+                views.setOnClickPendingIntent(ids.get(FEEDING_KEY), PendingIntent.getActivity(context, ids.get(FEEDING_KEY), intent, 0));
+        	}
+        	else
+        	{
+                views.setOnClickPendingIntent(ids.get(FEEDING_KEY), PendingIntent.getService(context, 0,
+                        new Intent(intents.get(FEEDING_KEY)), 0));
+        	}
             views.setOnClickPendingIntent(ids.get(SLEEP_KEY), PendingIntent.getService(context, 0,
                     new Intent(intents.get(SLEEP_KEY)), 0));
             views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,

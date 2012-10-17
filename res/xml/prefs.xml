@@ -42,4 +42,12 @@
             android:title="@string/twenty_four_hour_title"
             android:summary="@string/twenty_four_hour_summary"/>
     </PreferenceCategory>    
+    <PreferenceCategory
+            android:title="@string/enter_feeding_quantities_category_title">
+        <CheckBoxPreference
+            android:key="@string/enter_feeding_quantities_key"
+            android:defaultValue="false"
+            android:title="@string/enter_feeding_quantities"
+            android:summary="@string/enter_feeding_quantities_summary"/>
+    </PreferenceCategory>    
 </PreferenceScreen>

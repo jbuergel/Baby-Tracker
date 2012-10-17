@@ -18,6 +18,10 @@
     <string name="baby_enable_summary">Enable tracking for this baby.</string>
     <string name="baby_name_summary">Enter the name for this baby.</string>
     <string name="baby_name_title">Enter Name</string>
+    <string name="enter_feeding_quantities_category_title">Enter Quantities</string>
+    <string name="enter_feeding_quantities_key">enter_quantities</string>
+    <string name="enter_feeding_quantities">Enter Quantities?</string>
+    <string name="enter_feeding_quantities_summary">Enter quantities during feedings?</string>
     <string name="default_baby_name_1">Chuggy G</string>
     <string name="enable_baby_key_1">enable_baby_key_1</string>
     <string name="baby_name_key_1">baby_name_key_1</string>
@@ -74,4 +78,7 @@
     <string name="custom_name_key">custom_key</string>
     <string name="toast_shown">toast_shown</string>
     <string name="tip_toast">Tip:  tap your baby\'s name on the widget to show the settings.</string>
+    <string name="enter_quantity_text">Enter feeding quantity (in oz):</string>
+    <string name="done">Done</string>
+    <string name="display_amount">(%1$s oz)</string>
 </resources>

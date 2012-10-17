@@ -16,6 +16,7 @@ limitations under the License.
 
 package com.houseofslack.babytracker.reporting;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import com.houseofslack.babytracker.BabyTrackerAppWidget;
@@ -58,7 +59,7 @@ public abstract class ReportBase extends Activity
         eventStrings.put(DataProvider.EventType.SLEEP, getString(R.string.sleeping_event_string));
         eventStrings.put(DataProvider.EventType.CRYING, getString(R.string.crying_event_string));
         eventStrings.put(DataProvider.EventType.CUSTOM, getString(R.string.custom_event_string, 
-                PreferenceManager.getDefaultSharedPreferences(this).getString(this.getString(R.string.custom_name_key), "Custom").toLowerCase()));
+                PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.custom_name_key), "Custom").toLowerCase()));
         
         if ((null != savedInstanceState) && (null != savedInstanceState.getString(SAVED_REPORT_KEY)))
         {
@@ -131,6 +132,7 @@ public abstract class ReportBase extends Activity
             DataProvider.Event firstEventsSleep[] = new DataProvider.Event[2];
             DataProvider.Event firstEventsCrying[] = new DataProvider.Event[2];
             DataProvider.Event firstEventsCustom[] = new DataProvider.Event[2];
+            boolean useQuantities = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.enter_feeding_quantities_key), false);
             
             if ((null != cursor) && cursor.moveToFirst()) 
             {
@@ -176,6 +178,11 @@ public abstract class ReportBase extends Activity
                         sb.append(eventStrings.get(currentEvent.getType()));
                         sb.append(" at ");
                         sb.append(currentEvent.getDateString());
+                        if ((currentEvent.getType() == EventType.FEEDING) && useQuantities)
+                        {
+                        	sb.append(" ");
+                        	sb.append(getString(R.string.display_amount, new DecimalFormat("#.##").format(currentEvent.getQuantity())));
+                        }
                         sb.append("\n");
                     }
                 } while (cursor.moveToNext());
