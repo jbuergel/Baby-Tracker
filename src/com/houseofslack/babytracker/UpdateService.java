@@ -39,6 +39,8 @@ public class UpdateService extends IntentService
     public static final String UPDATE_RIGHT_CRYING = "com.houseofslack.babytracker.UPDATE_RIGHT_CRYING";
     public static final String UPDATE_LEFT_CUSTOM = "com.houseofslack.babytracker.UPDATE_LEFT_CUSTOM";
     public static final String UPDATE_RIGHT_CUSTOM = "com.houseofslack.babytracker.UPDATE_RIGHT_CUSTOM";
+    public static final String UPDATE_LEFT_CUSTOM_TIME = "com.houseofslack.babytracker.UPDATE_LEFT_CUSTOM_TIME";
+    public static final String UPDATE_RIGHT_CUSTOM_TIME = "com.houseofslack.babytracker.UPDATE_RIGHT_CUSTOM_TIME";
 
     public static final String LEFT_FEEDING_TIME = "left_feeding_time"; 
     public static final String PREVIOUS_LEFT_FEEDING_TIME = "previous_left_feeding_time"; 
@@ -68,6 +70,10 @@ public class UpdateService extends IntentService
     public static final String PREVIOUS_LEFT_FEEDING_AMOUNT = "previous_left_feeding_amount";
     public static final String RIGHT_FEEDING_AMOUNT = "right_feeding_amount";
     public static final String PREVIOUS_RIGHT_FEEDING_AMOUNT = "previous_right_feeding_amount";
+    public static final String LEFT_CUSTOM_TIME = "left_custom_time"; 
+    public static final String PREVIOUS_LEFT_CUSTOM_TIME = "previous_left_custom_time"; 
+    public static final String RIGHT_CUSTOM_TIME = "right_custom_time"; 
+    public static final String PREVIOUS_RIGHT_CUSTOM_TIME = "previous_right_custom_time"; 
     
     public static final String EXTRA_FEEDING_AMOUNT_VALUE = "extra_feeding_amount_value";
     
@@ -144,8 +150,11 @@ public class UpdateService extends IntentService
             DataProvider.deleteEvent(getContentResolver(), type, currentTime, babyNumber);
             edit.putLong(currentTimeKey, previousTime);
             edit.putLong(previousTimeKey, 0);
-            edit.putFloat(currentQuantityKey, previousQuantity);
-            edit.putFloat(previousQuantityKey, 0.0f);
+            if (null != currentQuantityKey)
+            {
+                edit.putFloat(currentQuantityKey, previousQuantity);
+                edit.putFloat(previousQuantityKey, 0.0f);
+            }
         }
         else
         {
@@ -153,8 +162,11 @@ public class UpdateService extends IntentService
             DataProvider.putEvent(getContentResolver(), type, now.toMillis(false), babyNumber, newQuantity);
             edit.putLong(currentTimeKey, now.toMillis(false));
             edit.putLong(previousTimeKey, currentTime);
-            edit.putFloat(currentQuantityKey, newQuantity);
-            edit.putFloat(previousQuantityKey, currentQuantity);
+            if (null != currentQuantityKey)
+            {
+                edit.putFloat(currentQuantityKey, newQuantity);
+                edit.putFloat(previousQuantityKey, currentQuantity);
+            }
         }
     }
     
@@ -257,6 +269,14 @@ public class UpdateService extends IntentService
         else if (UPDATE_RIGHT_CUSTOM.equals(intent.getAction()))
         {
             updateDurationEvent(prefs, edit, now, RIGHT_CUSTOM_START, RIGHT_CUSTOM_END, right, DataProvider.EventType.CUSTOM);
+        }
+        else if (UPDATE_LEFT_CUSTOM_TIME.equals(intent.getAction()))
+        {
+            updateTime(DataProvider.EventType.CUSTOM_TIME, prefs, edit, now, LEFT_CUSTOM_TIME, PREVIOUS_LEFT_CUSTOM_TIME, null, null, left, 0.0f);
+        }
+        else if (UPDATE_RIGHT_CUSTOM_TIME.equals(intent.getAction()))
+        {
+            updateTime(DataProvider.EventType.CUSTOM_TIME, prefs, edit, now, RIGHT_CUSTOM_TIME, PREVIOUS_RIGHT_CUSTOM_TIME, null, null, right, 0.0f);
         }
         edit.commit();
         BabyTrackerAppWidget.updateWidget(this);

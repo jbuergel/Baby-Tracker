@@ -31,9 +31,11 @@
     <string name="last_feeding_header">Last feeding:\n</string>
     <string name="last_wet_diaper_header">Last wet diaper:\n</string>
     <string name="last_bm_diaper_header">Last BM diaper:\n</string>
+    <string name="last_custom_time_header">Last %1$s:\n</string>
     <string name="unconfigured_feeding">Tap to record a feeding</string>
     <string name="unconfigured_wet_diaper">Tap to record a wet diaper</string>
     <string name="unconfigured_bm_diaper">Tap to record a BM diaper</string>
+    <string name="unconfigured_custom_time">Tap to record %1$s</string>
     <string name="help_text">Baby Tracker is a simple app designed to easily track with a single tap the times you last fed and changed your babies.  Select if you will be tracking one or two babies on the settings screen and set their names.  Then, on the home screen of your device, long-press the home screen and select \"Widgets\" and then \"Baby Tracker\".  You have two choices, one that includes diapers and sleeping or one that is a little taller that also includes crying tracking.  Selecting the widget will add it to your home screen.\n\nOnce the widget is turned on, just tap the box to record a feeding. diaper change, start/end of sleep or crying.  If you tap something by mistake, you can undo by tapping a second time within thirty seconds.  You can also remove the last entry or all data by using the menu on any report screen.  That\'s it!</string>
     <string name="help_done_caption">Done</string>
     <string name="confirm_delete">Are you sure you want to delete all tracking data?</string>
@@ -43,6 +45,7 @@
     <string name="tab_name_sleep">Sleeping</string>
     <string name="tab_name_crying">Crying</string>
     <string name="tab_name_custom">Custom</string>
+    <string name="tab_name_custom_time">Custom (Time)</string>
     <string name="feeding_event_string">was fed</string>
     <string name="wet_diaper_event_string">had a wet diaper</string>
     <string name="bm_diaper_event_string">had a dirty diaper</string>
@@ -70,12 +73,15 @@
     <string name="custom_name_category_title">Custom Category</string>
     <string name="custom_name_summary">Set a name for the custom category.</string>
     <string name="custom_name_title">Custom Category Name</string>
+    <string name="custom_duration_title">Duration Event?</string>
+    <string name="custom_duration_summary">Is this a duration event, like a nap, or more like a feeding.</string>
     <string name="twenty_four_hour_category_title">Time Format</string>
     <string name="twenty_four_hour_summary">Use 24 hour times?</string>
     <string name="twenty_four_hour_title">24 Hour Time</string>
     <string name="twenty_four_hour_key">24_hour_time</string>
     <string name="default_custom_name">Custom</string>
     <string name="custom_name_key">custom_key</string>
+    <string name="custom_duration_key">custom_duration_key</string>
     <string name="toast_shown">toast_shown</string>
     <string name="tip_toast">Tip:  tap your baby\'s name on the widget to show the settings.</string>
     <string name="enter_quantity_text">Enter feeding quantity (in oz):</string>

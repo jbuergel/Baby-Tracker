@@ -54,6 +54,9 @@ public class TabMain extends TabActivity
 
         intent = new Intent().setClass(this, CustomReport.class);
         tabHost.addTab(tabHost.newTabSpec("custom").setIndicator(getString(R.string.tab_name_custom)).setContent(intent));
+
+        intent = new Intent().setClass(this, CustomTimeReport.class);
+        tabHost.addTab(tabHost.newTabSpec("custom_time").setIndicator(getString(R.string.tab_name_custom_time)).setContent(intent));
         
         tabHost.setCurrentTab(0);    
     }

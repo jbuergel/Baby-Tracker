@@ -56,6 +56,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
     private static final String CUSTOM_START_KEY = "custom_start";
     private static final String CUSTOM_END_KEY = "custom_end";
     private static final String FEEDING_AMOUNT_KEY = "feedingAmount";
+    private static final String CUSTOM_TIME_KEY = "custom_time_key";
 
     static
     {
@@ -83,6 +84,7 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         LEFT_KEYS.put(CUSTOM_START_KEY, UpdateService.LEFT_CUSTOM_START);
         LEFT_KEYS.put(CUSTOM_END_KEY, UpdateService.LEFT_CUSTOM_END);
         LEFT_KEYS.put(FEEDING_AMOUNT_KEY, UpdateService.LEFT_FEEDING_AMOUNT);
+        LEFT_KEYS.put(CUSTOM_TIME_KEY, UpdateService.LEFT_CUSTOM_TIME);
         RIGHT_KEYS.put(FEEDING_KEY, UpdateService.RIGHT_FEEDING_TIME);
         RIGHT_KEYS.put(WET_DIAPER_KEY, UpdateService.RIGHT_WET_DIAPER_TIME);
         RIGHT_KEYS.put(BM_DIAPER_KEY, UpdateService.RIGHT_BM_DIAPER_TIME);
@@ -93,22 +95,22 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         RIGHT_KEYS.put(CUSTOM_START_KEY, UpdateService.RIGHT_CUSTOM_START);
         RIGHT_KEYS.put(CUSTOM_END_KEY, UpdateService.RIGHT_CUSTOM_END);
         RIGHT_KEYS.put(FEEDING_AMOUNT_KEY, UpdateService.RIGHT_FEEDING_AMOUNT);
+        RIGHT_KEYS.put(CUSTOM_TIME_KEY, UpdateService.RIGHT_CUSTOM_TIME);
         LEFT_INTENTS.put(FEEDING_KEY, UpdateService.UPDATE_LEFT_FEEDING);
         LEFT_INTENTS.put(WET_DIAPER_KEY, UpdateService.UPDATE_LEFT_WET_DIAPER);
         LEFT_INTENTS.put(BM_DIAPER_KEY, UpdateService.UPDATE_LEFT_BM_DIAPER);
         LEFT_INTENTS.put(SLEEP_KEY, UpdateService.UPDATE_LEFT_SLEEP);
         LEFT_INTENTS.put(CRYING_KEY, UpdateService.UPDATE_LEFT_CRYING);
         LEFT_INTENTS.put(CUSTOM_KEY, UpdateService.UPDATE_LEFT_CUSTOM);
+        LEFT_INTENTS.put(CUSTOM_TIME_KEY, UpdateService.UPDATE_LEFT_CUSTOM_TIME);
         RIGHT_INTENTS.put(FEEDING_KEY, UpdateService.UPDATE_RIGHT_FEEDING);
         RIGHT_INTENTS.put(WET_DIAPER_KEY, UpdateService.UPDATE_RIGHT_WET_DIAPER);
         RIGHT_INTENTS.put(BM_DIAPER_KEY, UpdateService.UPDATE_RIGHT_BM_DIAPER);
         RIGHT_INTENTS.put(SLEEP_KEY, UpdateService.UPDATE_RIGHT_SLEEP);
         RIGHT_INTENTS.put(CRYING_KEY, UpdateService.UPDATE_RIGHT_CRYING);
         RIGHT_INTENTS.put(CUSTOM_KEY, UpdateService.UPDATE_RIGHT_CUSTOM);
+        RIGHT_INTENTS.put(CUSTOM_TIME_KEY, UpdateService.UPDATE_RIGHT_CUSTOM_TIME);
     }
-    //int timeId, int wetDiaperId, int bmDiaperId, int sleepId, int cryingId, int nameId, 
-    //String nameKey, String feedingKey, String wetDiaperKey, String bmDiaperKey, String sleepStartKey, String sleepEndKey, String cryingStartKey, String cryingEndKey, 
-    //String feedingIntent, String wetDiaperIntent, String bmDiaperIntent, String sleepIntent, String cryingIntent)
     
     @Override
     public void onReceive(Context context, Intent intent)
@@ -137,17 +139,17 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         context.sendBroadcast(updateIntent);
     }
     
-    private void updateArea(Context context, RemoteViews views, int areaId, String key, int headerStringId, int unconfiguredHelpStringId, boolean showAmount, String amountKey)
+    private void updateArea(Context context, RemoteViews views, int areaId, String key, String headerString, String unconfiguredHelpString, boolean showAmount, String amountKey)
     {
         // get the time
         long longTime = PreferenceManager.getDefaultSharedPreferences(context).getLong(key, 0);
         if (0 == longTime)
         {
-            views.setTextViewText(areaId, context.getResources().getString(unconfiguredHelpStringId));
+            views.setTextViewText(areaId, unconfiguredHelpString);
         }
         else
         {
-            StringBuffer sb = new StringBuffer(context.getResources().getString(headerStringId));
+            StringBuffer sb = new StringBuffer(headerString);
             Time time = new Time();
             time.set(longTime);
             if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.twenty_four_hour_key), true)) {
@@ -176,16 +178,11 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         return context.getResources().getString(R.string.duration_string, hours, minutes);
     }
     
-    private void updateDurationEvent(Context context, RemoteViews views, int areaId, String startKey, String endKey, int noId, int goingId, int endedId, int customKey)
+    private void updateDurationEvent(Context context, RemoteViews views, int areaId, String startKey, String endKey, int noId, int goingId, int endedId, String customString)
     {
         // get the times
         long startTime = PreferenceManager.getDefaultSharedPreferences(context).getLong(startKey, 0);
         long endTime = PreferenceManager.getDefaultSharedPreferences(context).getLong(endKey, 0);
-        String customString = null;
-        if (0 != customKey) 
-        {
-            customString = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(customKey), "Custom").toLowerCase();
-        }
         if (0 == startTime)
         {
             if (null != customString) 
@@ -237,19 +234,28 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         views.setTextViewText(ids.get(NAME_KEY), name);
         
         boolean useFeedingAmounts = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.enter_feeding_quantities_key), false);
+        boolean isCustomDuration = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.custom_duration_key), true);
+        String customString = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.custom_name_key), "Custom").toLowerCase();
         
         // update the displays for items
-        updateArea(context, views, ids.get(WET_DIAPER_KEY), keys.get(WET_DIAPER_KEY), R.string.last_wet_diaper_header, R.string.unconfigured_wet_diaper, false, null);
-        updateArea(context, views, ids.get(BM_DIAPER_KEY), keys.get(BM_DIAPER_KEY), R.string.last_bm_diaper_header, R.string.unconfigured_bm_diaper, false, null);
+        updateArea(context, views, ids.get(WET_DIAPER_KEY), keys.get(WET_DIAPER_KEY), context.getResources().getString(R.string.last_wet_diaper_header), context.getResources().getString(R.string.unconfigured_wet_diaper), false, null);
+        updateArea(context, views, ids.get(BM_DIAPER_KEY), keys.get(BM_DIAPER_KEY), context.getResources().getString(R.string.last_bm_diaper_header), context.getResources().getString(R.string.unconfigured_bm_diaper), false, null);
         if (hasExtras())
         {
-            updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), R.string.last_feeding_header, R.string.unconfigured_feeding, useFeedingAmounts, keys.get(FEEDING_AMOUNT_KEY));
-            updateDurationEvent(context, views, ids.get(SLEEP_KEY), keys.get(SLEEP_START_KEY), keys.get(SLEEP_END_KEY), R.string.no_sleep, R.string.sleep_going, R.string.sleep_ended, 0);
-            updateDurationEvent(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_START_KEY), keys.get(CUSTOM_END_KEY), R.string.no_custom, R.string.custom_going, R.string.custom_ended, R.string.custom_name_key);
+            updateArea(context, views, ids.get(FEEDING_KEY), keys.get(FEEDING_KEY), context.getResources().getString(R.string.last_feeding_header), context.getResources().getString(R.string.unconfigured_feeding), useFeedingAmounts, keys.get(FEEDING_AMOUNT_KEY));
+            updateDurationEvent(context, views, ids.get(SLEEP_KEY), keys.get(SLEEP_START_KEY), keys.get(SLEEP_END_KEY), R.string.no_sleep, R.string.sleep_going, R.string.sleep_ended, null);
+            if (isCustomDuration) 
+            {
+            	updateDurationEvent(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_START_KEY), keys.get(CUSTOM_END_KEY), R.string.no_custom, R.string.custom_going, R.string.custom_ended, customString);
+            }
+            else
+            {
+                updateArea(context, views, ids.get(CUSTOM_KEY), keys.get(CUSTOM_TIME_KEY), context.getResources().getString(R.string.last_custom_time_header, customString), context.getResources().getString(R.string.unconfigured_custom_time, customString), false, null);
+            }
         }
         if (hasCrying()) 
         {
-            updateDurationEvent(context, views, ids.get(CRYING_KEY), keys.get(CRYING_START_KEY), keys.get(CRYING_END_KEY), R.string.no_crying, R.string.crying_going, R.string.crying_ended, 0);
+            updateDurationEvent(context, views, ids.get(CRYING_KEY), keys.get(CRYING_START_KEY), keys.get(CRYING_END_KEY), R.string.no_crying, R.string.crying_going, R.string.crying_ended, null);
         }
         
         // set pending intents for our areas
@@ -273,8 +279,16 @@ public abstract class BabyTrackerAppWidget extends AppWidgetProvider
         	}
             views.setOnClickPendingIntent(ids.get(SLEEP_KEY), PendingIntent.getService(context, 0,
                     new Intent(intents.get(SLEEP_KEY)), 0));
-            views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,
-                    new Intent(intents.get(CUSTOM_KEY)), 0));
+            if (isCustomDuration)
+            {
+                views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,
+                        new Intent(intents.get(CUSTOM_KEY)), 0));
+            }
+            else
+            {
+                views.setOnClickPendingIntent(ids.get(CUSTOM_KEY), PendingIntent.getService(context, 0,
+                        new Intent(intents.get(CUSTOM_TIME_KEY)), 0));
+            }
         }
         if (hasCrying()) 
         {

@@ -60,6 +60,8 @@ public abstract class ReportBase extends Activity
         eventStrings.put(DataProvider.EventType.CRYING, getString(R.string.crying_event_string));
         eventStrings.put(DataProvider.EventType.CUSTOM, getString(R.string.custom_event_string, 
                 PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.custom_name_key), "Custom").toLowerCase()));
+        eventStrings.put(DataProvider.EventType.CUSTOM_TIME, getString(R.string.custom_event_string, 
+                PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.custom_name_key), "Custom").toLowerCase()));
         
         if ((null != savedInstanceState) && (null != savedInstanceState.getString(SAVED_REPORT_KEY)))
         {

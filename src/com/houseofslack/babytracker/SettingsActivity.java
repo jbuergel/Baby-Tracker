@@ -137,6 +137,8 @@ public class SettingsActivity extends PreferenceActivity
                     edit.putLong(UpdateService.LEFT_CUSTOM_END, 0);
                     edit.putLong(UpdateService.RIGHT_CUSTOM_START, 0);
                     edit.putLong(UpdateService.RIGHT_CUSTOM_END, 0);
+                    edit.putLong(UpdateService.LEFT_CUSTOM_TIME, 0);
+                    edit.putLong(UpdateService.RIGHT_CUSTOM_TIME, 0);
                     
                     edit.commit();
                     

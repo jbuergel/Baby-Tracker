@@ -33,6 +33,11 @@
             android:title="@string/custom_name_title"
             android:defaultValue="@string/default_custom_name"
             android:key="@string/custom_name_key"/>
+        <CheckBoxPreference
+            android:key="@string/custom_duration_key"
+            android:defaultValue="true"
+            android:title="@string/custom_duration_title"
+            android:summary="@string/custom_duration_summary" />
     </PreferenceCategory>    
     <PreferenceCategory
             android:title="@string/twenty_four_hour_category_title">

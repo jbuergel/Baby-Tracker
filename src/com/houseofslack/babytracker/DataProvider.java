@@ -69,6 +69,7 @@ public class DataProvider extends ContentProvider {
         SLEEP,
         CRYING,
         CUSTOM,
+        CUSTOM_TIME,
         INVALID
     }
     
